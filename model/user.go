@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type UserModel struct {
 	gorm.Model
-	Nama         string
-	Password     string
-	ProductModel []ProductModel
+	Nama          string
+	Password      string
+	ProductModels []ProductModel `gorm:"foreignKey:UserID"`
 }
 
 type UserQuery struct {
