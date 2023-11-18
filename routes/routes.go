@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"clean_architecture_jwt/controller/barang"
-	"clean_architecture_jwt/controller/user"
+	"clean_architecture_jwt/features/barang"
+	"clean_architecture_jwt/features/user"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"

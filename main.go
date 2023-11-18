@@ -2,8 +2,8 @@ package main
 
 import (
 	"clean_architecture_jwt/config"
-	"clean_architecture_jwt/controller/barang"
-	"clean_architecture_jwt/controller/user"
+	"clean_architecture_jwt/features/barang"
+	"clean_architecture_jwt/features/user"
 	"clean_architecture_jwt/model"
 	"clean_architecture_jwt/routes"
 	"clean_architecture_jwt/utils/database"
