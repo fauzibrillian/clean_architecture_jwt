@@ -11,6 +11,7 @@ import (
 	uh "clean_architecture_jwt/features/user/handler"
 	ur "clean_architecture_jwt/features/user/repository"
 	us "clean_architecture_jwt/features/user/service"
+	ek "clean_architecture_jwt/helper/enkrip"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,8 +31,9 @@ func main() {
 	}
 	db.AutoMigrate(&ur.UserModel{}, &br.ProductModel{})
 
+	ekrip := ek.New()
 	userRepo := ur.New(db)
-	userService := us.New(userRepo)
+	userService := us.New(userRepo, ekrip)
 	userHandler := uh.New(userService)
 
 	barangRepo := br.New(db)
