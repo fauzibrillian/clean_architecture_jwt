@@ -1,8 +1,7 @@
-package barang
+package handler
 
 import (
-	"clean_architecture_jwt/model"
-	"clean_architecture_jwt/utils/jwt"
+	"clean_architecture_jwt/features/barang"
 	"net/http"
 	"strings"
 
@@ -10,47 +9,54 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type BarangController struct {
-	Model model.BarangQuery
+type BarangHandler struct {
+	s barang.Service
 }
 
-func (bc *BarangController) Register() echo.HandlerFunc {
+func New(s barang.Service) barang.Handler {
+	return &BarangHandler{
+		s: s,
+	}
+
+}
+
+func (bc *BarangHandler) Add() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		userid, err := jwt.ExtractToken(c.Get("user").(*gojwt.Token))
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, map[string]any{
-				"message": "tidak ada kuasa untuk mengakses",
-			})
-		}
 		var input = new(BarangRequest)
 		if err := c.Bind(input); err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]any{
-				"message": "input tidak sesuai",
+				"message": "input yang diberikan tidak sesuai",
 			})
 		}
-		var inputProses = new(model.ProductModel)
-		inputProses.ProductName = input.ProductName
-		inputProses.Stock = uint(input.Stock)
-		inputProses.Price = uint(input.Price)
-		inputProses.UserID = userid
 
-		result, err := bc.Model.AddBarang(*inputProses)
+		var inputProcess = new(barang.Barang)
+		inputProcess.ProductName = input.ProductName
+		inputProcess.Stock = input.Stock
+		inputProcess.Price = input.Price
+
+		result, err := bc.s.TambahBarang(c.Get("user").(*gojwt.Token), *inputProcess)
+
 		if err != nil {
-			c.Logger().Error("terjadi kesalahan", err.Error())
-			if strings.Contains(err.Error(), "duplicate") {
-				return c.JSON(http.StatusBadRequest, map[string]any{
-					"message": "dobel input nama",
-				})
+			c.Logger().Error("ERROR Register, explain:", err.Error())
+			var statusCode = http.StatusInternalServerError
+			var message = "terjadi permasalahan ketika memproses data"
+
+			if strings.Contains(err.Error(), "terdaftar") {
+				statusCode = http.StatusBadRequest
+				message = "data yang diinputkan sudah terdaftar ada sistem"
 			}
-			return c.JSON(http.StatusBadRequest, map[string]any{
-				"message": "input tidak sesuai",
+
+			return c.JSON(statusCode, map[string]any{
+				"message": message,
 			})
 		}
+
 		var response = new(BarangResponse)
-		response.ID = result.ID
 		response.ProductName = result.ProductName
-		response.Stock = uint(result.Stock)
-		response.Price = uint(result.Price)
+		response.Stock = result.Stock
+		response.Price = result.Price
+		response.ID = result.ID
+
 		return c.JSON(http.StatusCreated, map[string]any{
 			"message": "success create data",
 			"data":    response,

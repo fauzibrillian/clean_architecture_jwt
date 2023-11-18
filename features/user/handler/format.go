@@ -1,4 +1,4 @@
-package user
+package handler
 
 type UserRequest struct {
 	Nama     string `json:"nama" form:"nama"`

@@ -1,6 +1,10 @@
-package model
+package repository
 
-import "gorm.io/gorm"
+import (
+	"clean_architecture_jwt/features/barang"
+
+	"gorm.io/gorm"
+)
 
 type ProductModel struct {
 	gorm.Model
@@ -10,13 +14,27 @@ type ProductModel struct {
 	UserID      uint
 }
 type BarangQuery struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
-func (bq *BarangQuery) AddBarang(newBarang ProductModel) (ProductModel, error) {
-	if err := bq.DB.Create(&newBarang).Error; err != nil {
-		return ProductModel{}, err
+func New(db *gorm.DB) barang.Repo {
+	return &BarangQuery{
+		db: db,
 	}
+}
+
+func (bq *BarangQuery) InsertBarang(userID uint, newBarang barang.Barang) (barang.Barang, error) {
+	var inputData = new(ProductModel)
+	inputData.UserID = userID
+	inputData.ProductName = newBarang.ProductName
+	inputData.Stock = newBarang.Stock
+	inputData.Price = newBarang.Price
+
+	if err := bq.db.Create(&inputData).Error; err != nil {
+		return barang.Barang{}, err
+	}
+
+	newBarang.ID = inputData.ID
 
 	return newBarang, nil
 }

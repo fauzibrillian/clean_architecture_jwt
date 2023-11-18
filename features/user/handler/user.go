@@ -1,8 +1,8 @@
-package user
+package handler
 
 import (
-	"clean_architecture_jwt/model"
-	"clean_architecture_jwt/utils/jwt"
+	"clean_architecture_jwt/features/user"
+	"clean_architecture_jwt/helper/jwt"
 	"net/http"
 	"strings"
 
@@ -11,7 +11,13 @@ import (
 )
 
 type UserController struct {
-	Model model.UserQuery
+	srv user.Service
+}
+
+func New(s user.Service) user.Handler {
+	return &UserController{
+		srv: s,
+	}
 }
 
 func (uc *UserController) Register() echo.HandlerFunc {
@@ -22,11 +28,11 @@ func (uc *UserController) Register() echo.HandlerFunc {
 				"message": "input tidak sesuai",
 			})
 		}
-		var inputProses = new(model.UserModel)
+		var inputProses = new(user.User)
 		inputProses.Nama = input.Nama
 		inputProses.Password = input.Password
 
-		result, err := uc.Model.Register(*inputProses)
+		result, err := uc.srv.Register(*inputProses)
 		if err != nil {
 			c.Logger().Error("terjadi kesalahan", err.Error())
 			if strings.Contains(err.Error(), "duplicate") {
@@ -57,7 +63,7 @@ func (uc *UserController) Login() echo.HandlerFunc {
 			})
 		}
 
-		result, err := uc.Model.Login(input.Nama, input.Password)
+		result, err := uc.srv.Login(input.Nama, input.Password)
 
 		if err != nil {
 			c.Logger().Error("ERROR Login, explain:", err.Error())

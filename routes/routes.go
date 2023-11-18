@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func InitRoute(e *echo.Echo, uc user.UserController, bc barang.BarangController) {
+func InitRoute(e *echo.Echo, uc user.Handler, bc barang.Handler) {
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.Use(middleware.CORS())
@@ -19,12 +19,11 @@ func InitRoute(e *echo.Echo, uc user.UserController, bc barang.BarangController)
 	RouteBarang(e, bc)
 }
 
-func RouteUser(e *echo.Echo, uc user.UserController) {
+func RouteUser(e *echo.Echo, uc user.Handler) {
 	e.POST("/register", uc.Register())
 	e.POST("/login", uc.Login())
-	e.GET("/users", uc.GetListUser(), echojwt.JWT([]byte("$!1gnK3yyy!!!")))
 }
 
-func RouteBarang(e *echo.Echo, bc barang.BarangController) {
-	e.POST("/barangs", bc.Register(), echojwt.JWT([]byte("$!1gnK3yyy!!!")))
+func RouteBarang(e *echo.Echo, bc barang.Handler) {
+	e.POST("/barangs", bc.Add(), echojwt.JWT([]byte("$!1gnK3yyy!!!")))
 }

@@ -2,11 +2,15 @@ package main
 
 import (
 	"clean_architecture_jwt/config"
-	"clean_architecture_jwt/features/barang"
-	"clean_architecture_jwt/features/user"
-	"clean_architecture_jwt/model"
 	"clean_architecture_jwt/routes"
 	"clean_architecture_jwt/utils/database"
+
+	bh "clean_architecture_jwt/features/barang/handler"
+	br "clean_architecture_jwt/features/barang/repository"
+	bs "clean_architecture_jwt/features/barang/service"
+	uh "clean_architecture_jwt/features/user/handler"
+	ur "clean_architecture_jwt/features/user/repository"
+	us "clean_architecture_jwt/features/user/service"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,14 +28,17 @@ func main() {
 	if err != nil {
 		e.Logger.Fatal("tidak bisa start bro", err.Error())
 	}
-	db.AutoMigrate(&model.UserModel{}, &model.ProductModel{})
-	m := model.UserQuery{DB: db}
-	userController := user.UserController{Model: m}
+	db.AutoMigrate(&ur.UserModel{}, &br.ProductModel{})
 
-	bm := model.BarangQuery{DB: db}
-	barangController := barang.BarangController{Model: bm}
+	userRepo := ur.New(db)
+	userService := us.New(userRepo)
+	userHandler := uh.New(userService)
 
-	routes.InitRoute(e, userController, barangController)
+	barangRepo := br.New(db)
+	barangService := bs.New(barangRepo)
+	barangHandler := bh.New(barangService)
+
+	routes.InitRoute(e, userHandler, barangHandler)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }
