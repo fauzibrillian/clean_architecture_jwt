@@ -1,4 +1,4 @@
-package barang
+package handler
 
 type BarangRequest struct {
 	ProductName string `json:"product_name" form:"product_name"`
