@@ -42,8 +42,8 @@ func (us *userService) Register(newUser user.User) (user.User, error) {
 	return result, nil
 }
 
-func (us *userService) Login(hp string, password string) (user.User, error) {
-	result, err := us.repo.Login(hp)
+func (us *userService) Login(nama string, password string) (user.User, error) {
+	result, err := us.repo.Login(nama)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
